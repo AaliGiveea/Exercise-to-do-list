@@ -1,122 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useMemo } from "react";
+import { useLocalStorage } from "./hooks/useLocalStorage";
+import ExerciseForm from "./components/ExerciseForm";
+import ExerciseItem from "./components/ExerciseItem";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const [exercises, setExercises] = useLocalStorage("exercises", []);
+
+  function addExercise(ex) {
+    setExercises((prev) => [ex, ...prev]);
+  }
+
+  function toggleExercise(id) {
+    setExercises((prev) =>
+      prev.map((e) => (e.id === id ? { ...e, done: !e.done } : e)),
+    );
+  }
+
+  function deleteExercise(id) {
+    setExercises((prev) => prev.filter((e) => e.id !== id));
+  }
+
+  const { total, completed } = useMemo(
+    () => ({
+      total: exercises.length,
+      completed: exercises.filter((e) => e.done).length,
+    }),
+    [exercises],
+  );
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+    <div className="min-h-screen py-10 px-4">
+      <div className="max-w-2xl mx-auto flex flex-col gap-6">
+        <header>
+          <h1 className="text-3xl font-bold text-gray-900">Exercise App</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            {completed} of {total} completed
           </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+        </header>
 
-      <div className="ticks"></div>
+        <ExerciseForm onAdd={addExercise} />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+        <div className="flex flex-col gap-3">
+          {exercises.length === 0 ? (
+            <p className="text-center text-gray-400 text-sm py-10">
+              No exercises yet. Add one above.
+            </p>
+          ) : (
+            exercises.map((ex) => (
+              <ExerciseItem
+                key={ex.id}
+                exercise={ex}
+                onToggle={toggleExercise}
+                onDelete={deleteExercise}
+              />
+            ))
+          )}
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      </div>
+    </div>
+  );
 }
-
-export default App
