@@ -1,2 +1,3 @@
 # vite-starting
-I'm going to relearn React after years, YoHooo =)
+created with Vite for doing Exercises very easily .
+a simple todo list for do Exercise 
